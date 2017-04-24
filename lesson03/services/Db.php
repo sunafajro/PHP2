@@ -61,7 +61,8 @@ class Db
 
 	public static function queryOne($sql, $params = [])
 	{
-		return static::queryAll($sql, $params)[0];
+		$sth = static::query($sql, $params);
+        return $sth->fetch();
 	}
 
 	public static function queryAll($sql, $params = [])
@@ -70,9 +71,23 @@ class Db
 		return $sth->fetchAll();
 	}
 
+    public static function queryOneObject($sql, $params = [], $class)
+    {
+        $sth = static::query($sql, $params);
+        $sth->setFetchMode(\PDO::FETCH_CLASS, $class);
+        return $sth->fetch();
+    }
+
+    public static function queryAllObjects($sql, $params = [], $class)
+    {
+        $sth = static::query($sql, $params);
+        $sth->setFetchMode(\PDO::FETCH_CLASS, $class);
+        return $sth->fetchAll();
+    }
+
 	public static function queryExecute($sql, $params = [])
 	{
-		$sth = static::query($sql, $params = []);
+		$sth = static::query($sql, $params);
 		return true;
 	}
 }

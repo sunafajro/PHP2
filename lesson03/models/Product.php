@@ -2,39 +2,34 @@
 
 namespace app\models;
 
-use app\services\DB;
-
-abstract class Product 
+class Product extends Model
 {
-	public $id;
 	public $name;
 	public $description;
 	public $cost;
 	public $quantity;
+	public $type;
+	public $weight;
 
-	protected static $table = 'tbl_product';
-
-	protected $db;
-	
-	abstract public function costCalculation();
-
-	abstract public function marginCalculation(); 
-
-	abstract public function getTableName();
-
-	public static function getAll() {
-		$table = static::getTableName();
-		$sql = 'SELECT * FROM ' . $table;
-		return static::getDb()->queryAll($sql);
+	public function totalCostCalculation() 
+	{
+		$total_cost = 0;
+		switch($this->type) {
+		    case 'standard': $total_cost = $this->cost; break;
+		    case 'weighted': $total_cost = $this->cost * $this->weight; break;
+		    case 'digital': $total_cost = $this->cost/2; break;
+		    default: $total_cost = $this->cost;
+		}
+		return $total_cost;
 	}
 
-	public static function getById($id) {
-		$table = static::getTableName();
-		$sql = 'SELECT * FROM ' . $table . ' WHERE id=:id';
-		return static::getDb()->queryOne($sql, [':id' => $id]);
-	}
+	public function productMarginCalculation()
+	{
+        return $this->totalCostCalculation() * 0.1;
+	} 
 
-	public static function getDb() {
-		return Db::getInstance();
-	}
+    public function getTableName()
+    {
+    	return 'tbl_product';
+    }
 }
