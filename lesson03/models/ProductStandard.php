@@ -4,7 +4,6 @@ namespace app\models;
 
 class ProductStandard extends Product 
 {
-
     public function __construct()
     {
     	$this->cost = 1000;
@@ -18,5 +17,9 @@ class ProductStandard extends Product
 	public function marginCalculation()
 	{
         return $this->costCalculation() * 0.1;
+	}
+
+	public function getTableName() {
+		return static::$table;
 	}
 }

@@ -7,16 +7,10 @@ use app\services\Autoloader;
 use app\models\ProductDigital;
 use app\models\ProductStandard;
 use app\models\ProductByWeight;
+use app\services\DB;
 
 spl_autoload_register([new Autoloader(), 'loadClass']);
 
-$p1 = new ProductDigital();
-$p2 = new ProductStandard();
-$p3 = new ProductByWeight();
+$product = new ProductStandard();
 
-var_dump($p1->costCalculation());
-var_dump($p1->marginCalculation());
-var_dump($p2->costCalculation());
-var_dump($p2->marginCalculation());
-var_dump($p3->costCalculation());
-var_dump($p3->marginCalculation());
+var_dump($product->getAll());

@@ -4,9 +4,9 @@ namespace app\services;
 
 class Db 
 {
-	protected $conn;
+	protected static $conn;
 
-    protected $config = [
+    protected static $config = [
         'driver' => 'mysql',
         'host' => 'localhost',
         'login' => 'root',
@@ -14,26 +14,65 @@ class Db
         'database' => 'geekdb'
     ];
 
-    protected function prepareDSN()
+    protected static $instance = NULL;
+
+    private function __construct() {}
+	private function __wakeup() {}
+    private function __clone() {}
+
+    public static function getInstance() {
+    	if(is_null(static::$instance)) {
+    		static::$instance = new static();
+    	}
+    	return static::$instance;
+    }
+
+    protected static function prepareDSN()
     {
     	return sprintf(
-            "%s:host=%s;dbname=%s;charset=UTF-8",
-            $this->config['driver'],
-            $this->config['host'],
-            $this->config['database']
+            "%s:host=%s;dbname=%s;charset=UTF8",
+            static::$config['driver'],
+            static::$config['host'],
+            static::$config['database']
     	);
     }
 
-    public function getConnection()
+    public static function getConnection()
     {
-        if(is_null($this->conn)) {
-            $this->conn = new \PDO();
+        if(is_null(static::$conn)) {
+            static::$conn = new \PDO(
+            	static::prepareDSN(),
+            	static::$config['login'],
+            	static::$config['password']
+            );
         }
-        return $this->conn;
+        /* по умолчанию все данные возвращать в виде ассоциативного массива */
+        static::$conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+        static::$conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        return static::$conn;
     }
 
-	public function queryOne()
+	public static function query($sql, $params = [])
 	{
-		return [];
+		$sth = static::getConnection()->prepare($sql);
+		$sth->execute($params);
+		return $sth;
+	}
+
+	public static function queryOne($sql, $params = [])
+	{
+		return static::queryAll($sql, $params)[0];
+	}
+
+	public static function queryAll($sql, $params = [])
+	{
+		$sth = static::query($sql, $params);
+		return $sth->fetchAll();
+	}
+
+	public static function queryExecute($sql, $params = [])
+	{
+		$sth = static::query($sql, $params = []);
+		return true;
 	}
 }
